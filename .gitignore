@@ -1,0 +1,21 @@
+# .NET build outputs
+**/bin/
+**/obj/
+*.user
+.vs/
+*.nupkg
+
+# Frontend dependencies & build
+frontend/node_modules/
+frontend/build/
+frontend/coverage/
+
+# Uploaded files (runtime data, not source)
+UploadedFiles/
+
+# Claude memory (personal notes)
+.claude/memory/
+
+# OS
+.DS_Store
+Thumbs.db

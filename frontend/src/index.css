@@ -1,0 +1,262 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=MS%20Mincho&display=swap");
+
+html {
+  font-family: "Yu Gothic", sans-serif;
+  font-size: 24px;
+  color: #11596f;
+  line-height: 150%;
+  font-weight: 1000;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #fff;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem 0.5rem;
+}
+
+section {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1rem;
+  max-width: 1440px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  flex-grow: 1;
+  padding-bottom: 1rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+button,
+textarea {
+  font-size: 24px;
+  padding: 0.25rem;
+  border-radius: 0.2rem;
+  border-width: 2px;
+}
+
+input.section-input,
+textarea,
+select {
+  padding: 10px;
+  border-radius: 0.3rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+textarea {
+  height: 5rem;
+}
+
+input.section-input,
+select {
+  height: 2rem;
+}
+
+fieldset.MuiOutlinedInput-notchedOutline,
+select {
+  border-width: 2px;
+  border-style: inset;
+  border-color: rgba(0, 0, 0, 0.87);
+  border-image: initial;
+}
+
+button {
+  margin-top: 1rem;
+}
+
+li {
+  list-style-type: none;
+}
+
+.instructions {
+  font-size: 0.75rem;
+  border-radius: 0.5rem;
+  background: #000;
+  color: #fff;
+  padding: 0.25rem;
+  position: relative;
+  bottom: -10px;
+}
+
+.instructions > svg {
+  margin-right: 0.25rem;
+}
+
+.offscreen {
+  position: absolute;
+  left: -9999px;
+}
+
+.hide {
+  display: none;
+}
+
+.valid {
+  color: limegreen;
+  margin-left: 0.25rem;
+}
+
+.invalid {
+  color: red;
+  margin-left: 0.25rem;
+}
+
+.errmsg {
+  background-color: lightpink;
+  color: firebrick;
+  font-weight: bold;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+errors {
+  font-size: 20px;
+  color: red;
+  margin-left: 5px;
+}
+
+.line {
+  display: inline-block;
+}
+
+.flexGrow {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+/* Customer */
+.section-item {
+  margin-bottom: 10px;
+}
+
+.section-range {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+}
+
+.handle-button {
+  display: flex;
+  justify-content: space-around;
+  column-gap: 40px;
+}
+
+/* Search */
+ul.search-results {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1rem;
+  background-color: #11596f;
+  color: white;
+  box-sizing: border-box;
+}
+li.search-result {
+  display: flex;
+  justify-content: space-between;
+}
+
+.MuiTableCell-root {
+  border-left: 1px solid rgba(224, 224, 224, 1) !important;
+}
+.MuiTableCell-head {
+  background-color: #004862;
+  color: #fff !important;
+}
+.MuiTableCell-body {
+  color: white !important;
+}
+.MuiTableRow-root {
+  color: white !important;
+  background-color: #11596f;
+}
+.MuiTableRow-root:hover {
+  background-color: #004862;
+}
+
+.MuiTableRow-root:not(:hover) .container-search-actions {
+  display: none;
+}
+.required-icon {
+  color: rgb(255, 0, 0);
+  margin-left: 0.25rem;
+}
+
+input:invalid[focused="true"] {
+  border: 1px solid red;
+}
+
+.pagination-class {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 10px;
+  justify-content: right;
+  margin: 10px 0 10px 0;
+}
+
+.select-option {
+  height: 38px;
+}
+
+.tooltipSpan {
+  width: 100%;
+}
+
+.preview-file {
+  display: flex;
+  flex-direction: column !important;
+  align-items: center;
+  padding-top: 8px !important;
+}
+
+.search-action {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 8px;
+}
+.search-close,
+.search-edit,
+.search-delete {
+  background-color: #14873a !important;
+  color: #fff !important;
+}
+.search-action .Mui-disabled {
+  color: white !important;
+  background-color: grey !important;
+}
+.container-search-actions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: row;
+  column-gap: 8px;
+  align-items: center;
+  justify-content: center;
+}

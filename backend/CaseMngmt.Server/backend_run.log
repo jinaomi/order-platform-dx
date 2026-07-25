@@ -1,0 +1,160 @@
+f:\Prj\CaseMngmt\backend\CaseMngmt.Server\Properties\launchSettings.json からの起動設定を使用中...
+info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 6.0.25 initialized 'ApplicationDbContext' using provider 'Microsoft.EntityFrameworkCore.SqlServer:6.0.25' with options: None
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (19ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 6.0.25 initialized 'ApplicationDbContext' using provider 'Microsoft.EntityFrameworkCore.SqlServer:6.0.25' with options: None
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (32ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[BuildingName], [c].[City], [c].[CreatedBy], [c].[CreatedDate], [c].[Deleted], [c].[Name], [c].[Note], [c].[PhoneNumber], [c].[PostCode1], [c].[PostCode2], [c].[RoomNumber], [c].[StateProvince], [c].[Street], [c].[UpdatedBy], [c].[UpdatedDate]
+      FROM [Company] AS [c]
+      WHERE [c].[Id] = @__get_Item_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Template] AS [t]
+              WHERE [t].[IsDefault] = CAST(1 AS bit)) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:7265
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5178
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: f:\Prj\CaseMngmt\backend\CaseMngmt.Server\
+info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 6.0.25 initialized 'ApplicationDbContext' using provider 'Microsoft.EntityFrameworkCore.SqlServer:6.0.25' with options: None
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[CompanyId], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[100]
+      Start processing HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[100]
+      Sending HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[101]
+      Received HTTP response headers after 2050.6427ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[101]
+      End processing HTTP request after 2062.2ms - 200
+info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 6.0.25 initialized 'ApplicationDbContext' using provider 'Microsoft.EntityFrameworkCore.SqlServer:6.0.25' with options: None
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__companyId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [p].[Id], [p].[CompanyId], [p].[CreatedBy], [p].[CreatedDate], [p].[Deleted], [p].[Name], [p].[Note], [p].[ProductCode], [p].[ProductionCapacityPerDay], [p].[StockQuantity], [p].[UnitOfMeasure], [p].[UnitPrice], [p].[UpdatedBy], [p].[UpdatedDate]
+      FROM [Product] AS [p]
+      WHERE ([p].[Deleted] = CAST(0 AS bit)) AND ([p].[CompanyId] = @__companyId_0)
+      ORDER BY [p].[Name]
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[100]
+      Start processing HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[100]
+      Sending HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[101]
+      Received HTTP response headers after 3620.0178ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[101]
+      End processing HTTP request after 3620.163ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[100]
+      Start processing HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[100]
+      Sending HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[101]
+      Received HTTP response headers after 1882.2745ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[101]
+      End processing HTTP request after 1882.3472ms - 200
+info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 6.0.25 initialized 'ApplicationDbContext' using provider 'Microsoft.EntityFrameworkCore.SqlServer:6.0.25' with options: None
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@__companyId_0='?' (DbType = Guid), @__status_1='?' (Size = 50)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Order] AS [o]
+      WHERE (([o].[Deleted] = CAST(0 AS bit)) AND ([o].[CompanyId] = @__companyId_0)) AND ([o].[Status] = @__status_1)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@__companyId_0='?' (DbType = Guid), @__status_1='?' (Size = 50), @__p_2='?' (DbType = Int32), @__p_3='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [t].[Id], [t].[CompanyId], [t].[CreatedBy], [t].[CreatedDate], [t].[CustomerId], [t].[Deleted], [t].[Name], [t].[Note], [t].[OrderDate], [t].[OrderNumber], [t].[RequestedDeliveryDate], [t].[SourceDocumentPath], [t].[SourceType], [t].[Status], [t].[SubTotalAmount], [t].[TaxAmount], [t].[TotalAmount], [t].[UpdatedBy], [t].[UpdatedDate], [c].[Id], [c].[BuildingName], [c].[City], [c].[CompanyId], [c].[CreatedBy], [c].[CreatedDate], [c].[Deleted], [c].[Name], [c].[Note], [c].[PhoneNumber], [c].[PostCode1], [c].[PostCode2], [c].[RoomNumber], [c].[StateProvince], [c].[Street], [c].[UpdatedBy], [c].[UpdatedDate], [t0].[Id], [t0].[CreatedBy], [t0].[CreatedDate], [t0].[Deleted], [t0].[LineAmount], [t0].[Name], [t0].[Note], [t0].[OrderId], [t0].[ProductId], [t0].[ProductNameRaw], [t0].[Quantity], [t0].[UnitPrice], [t0].[UpdatedBy], [t0].[UpdatedDate]
+      FROM (
+          SELECT [o].[Id], [o].[CompanyId], [o].[CreatedBy], [o].[CreatedDate], [o].[CustomerId], [o].[Deleted], [o].[Name], [o].[Note], [o].[OrderDate], [o].[OrderNumber], [o].[RequestedDeliveryDate], [o].[SourceDocumentPath], [o].[SourceType], [o].[Status], [o].[SubTotalAmount], [o].[TaxAmount], [o].[TotalAmount], [o].[UpdatedBy], [o].[UpdatedDate]
+          FROM [Order] AS [o]
+          WHERE (([o].[Deleted] = CAST(0 AS bit)) AND ([o].[CompanyId] = @__companyId_0)) AND ([o].[Status] = @__status_1)
+          ORDER BY [o].[OrderDate] DESC
+          OFFSET @__p_2 ROWS FETCH NEXT @__p_3 ROWS ONLY
+      ) AS [t]
+      INNER JOIN [Customer] AS [c] ON [t].[CustomerId] = [c].[Id]
+      LEFT JOIN (
+          SELECT [o0].[Id], [o0].[CreatedBy], [o0].[CreatedDate], [o0].[Deleted], [o0].[LineAmount], [o0].[Name], [o0].[Note], [o0].[OrderId], [o0].[ProductId], [o0].[ProductNameRaw], [o0].[Quantity], [o0].[UnitPrice], [o0].[UpdatedBy], [o0].[UpdatedDate]
+          FROM [OrderItem] AS [o0]
+          WHERE [o0].[Deleted] = CAST(0 AS bit)
+      ) AS [t0] ON [t].[Id] = [t0].[OrderId]
+      ORDER BY [t].[OrderDate] DESC, [t].[Id], [c].[Id]
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[100]
+      Start processing HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[100]
+      Sending HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[101]
+      Received HTTP response headers after 6150.6973ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[101]
+      End processing HTTP request after 6150.7798ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[100]
+      Start processing HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[100]
+      Sending HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[101]
+      Received HTTP response headers after 2110.1364ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[101]
+      End processing HTTP request after 2110.2222ms - 200
+info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+      Entity Framework Core 6.0.25 initialized 'ApplicationDbContext' using provider 'Microsoft.EntityFrameworkCore.SqlServer:6.0.25' with options: None
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@__companyId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [o].[Id], [o].[CompanyId], [o].[CreatedBy], [o].[CreatedDate], [o].[CustomerId], [o].[Deleted], [o].[Name], [o].[Note], [o].[OrderDate], [o].[OrderNumber], [o].[RequestedDeliveryDate], [o].[SourceDocumentPath], [o].[SourceType], [o].[Status], [o].[SubTotalAmount], [o].[TaxAmount], [o].[TotalAmount], [o].[UpdatedBy], [o].[UpdatedDate], [c].[Id], [c].[BuildingName], [c].[City], [c].[CompanyId], [c].[CreatedBy], [c].[CreatedDate], [c].[Deleted], [c].[Name], [c].[Note], [c].[PhoneNumber], [c].[PostCode1], [c].[PostCode2], [c].[RoomNumber], [c].[StateProvince], [c].[Street], [c].[UpdatedBy], [c].[UpdatedDate], [t].[Id], [t].[CreatedBy], [t].[CreatedDate], [t].[Deleted], [t].[LineAmount], [t].[Name], [t].[Note], [t].[OrderId], [t].[ProductId], [t].[ProductNameRaw], [t].[Quantity], [t].[UnitPrice], [t].[UpdatedBy], [t].[UpdatedDate]
+      FROM [Order] AS [o]
+      INNER JOIN [Customer] AS [c] ON [o].[CustomerId] = [c].[Id]
+      LEFT JOIN (
+          SELECT [o0].[Id], [o0].[CreatedBy], [o0].[CreatedDate], [o0].[Deleted], [o0].[LineAmount], [o0].[Name], [o0].[Note], [o0].[OrderId], [o0].[ProductId], [o0].[ProductNameRaw], [o0].[Quantity], [o0].[UnitPrice], [o0].[UpdatedBy], [o0].[UpdatedDate]
+          FROM [OrderItem] AS [o0]
+          WHERE [o0].[Deleted] = CAST(0 AS bit)
+      ) AS [t] ON [o].[Id] = [t].[OrderId]
+      WHERE ([o].[Deleted] = CAST(0 AS bit)) AND ([o].[CompanyId] = @__companyId_0)
+      ORDER BY [o].[Id], [c].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__companyId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[CompanyId], [i].[CreatedBy], [i].[CreatedDate], [i].[CustomerId], [i].[Deleted], [i].[DueDate], [i].[InvoiceNumber], [i].[IssueDate], [i].[Name], [i].[OrderId], [i].[PdfPath], [i].[Status], [i].[SubTotalAmount], [i].[TaxAmount], [i].[TotalAmount], [i].[UpdatedBy], [i].[UpdatedDate]
+      FROM [Invoice] AS [i]
+      WHERE ([i].[Deleted] = CAST(0 AS bit)) AND ([i].[CompanyId] = @__companyId_0)
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[100]
+      Start processing HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[100]
+      Sending HTTP request POST https://api.anthropic.com/v1/messages
+info: System.Net.Http.HttpClient.AnthropicClient.ClientHandler[101]
+      Received HTTP response headers after 4449.117ms - 200
+info: System.Net.Http.HttpClient.AnthropicClient.LogicalHandler[101]
+      End processing HTTP request after 4449.2342ms - 200

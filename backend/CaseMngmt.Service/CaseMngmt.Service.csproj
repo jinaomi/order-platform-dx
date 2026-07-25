@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.S3" Version="0.27.2" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.300.29" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.305.4" />
+    <PackageReference Include="QuestPDF" Version="2026.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CaseMngmt.Model\CaseMngmt.Models.csproj" />
+    <ProjectReference Include="..\CaseMngmt.Repository\CaseMngmt.Repository.csproj" />
+  </ItemGroup>
+
+</Project>
