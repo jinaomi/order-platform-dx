@@ -3,6 +3,7 @@ namespace CaseMngmt.Models.Orders
     public class OrderExtractionResult
     {
         public string? CustomerNameGuess { get; set; }
+        public double CustomerNameConfidence { get; set; } = 0.5;
         public Guid? CustomerIdMatch { get; set; }
         public DateTime? OrderDateGuess { get; set; }
         public DateTime? RequestedDeliveryDateGuess { get; set; }

@@ -38,6 +38,8 @@ const OrderIntakeUpload = () => {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [customerMatched, setCustomerMatched] = useState(true);
+  const [customerNameGuess, setCustomerNameGuess] = useState("");
+  const [customerNameConfidence, setCustomerNameConfidence] = useState(1);
   const [latestData, setLatestData] = useState({
     customerId: null,
     orderDate: new Date().toISOString().slice(0, 10),
@@ -103,6 +105,10 @@ const OrderIntakeUpload = () => {
       const draft = response.data;
 
       setCustomerMatched(!!draft.customerIdMatch);
+      setCustomerNameGuess(draft.customerNameGuess || "");
+      setCustomerNameConfidence(
+        draft.customerNameConfidence != null ? draft.customerNameConfidence : 1
+      );
       setLatestData({
         customerId: draft.customerIdMatch || null,
         orderDate: draft.orderDateGuess
@@ -111,9 +117,7 @@ const OrderIntakeUpload = () => {
         requestedDeliveryDate: draft.requestedDeliveryDateGuess
           ? draft.requestedDeliveryDateGuess.slice(0, 10)
           : "",
-        note: draft.customerNameGuess && !draft.customerIdMatch
-          ? `AI認識取引先名（未登録）：${draft.customerNameGuess}`
-          : "",
+        note: "",
       });
       setItems(
         (draft.items || []).map((i) => ({
@@ -243,6 +247,8 @@ const OrderIntakeUpload = () => {
     });
     setItems([emptyRow()]);
     setCustomerMatched(true);
+    setCustomerNameGuess("");
+    setCustomerNameConfidence(1);
   };
 
   const total = items.reduce(
@@ -302,6 +308,18 @@ const OrderIntakeUpload = () => {
                 setCustomerMatched(true);
               }}
             />
+            {customerNameGuess && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
+                <span style={{ fontSize: "0.85rem", color: "#555" }}>
+                  AIが読み取った取引先名：{customerNameGuess}
+                </span>
+                {customerNameConfidence < CONFIDENCE_THRESHOLD ? (
+                  <Chip label="要確認" color="warning" size="small" />
+                ) : (
+                  <Chip label="OK" color="success" size="small" variant="outlined" />
+                )}
+              </div>
+            )}
             {!customerMatched && (
               <div style={{ color: "#b26a00" }}>
                 AIが取引先を自動特定できませんでした。手動で選択してください。

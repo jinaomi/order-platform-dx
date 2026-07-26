@@ -49,7 +49,8 @@ namespace CaseMngmt.Service.Ai
             {
                 Model = ModelId,
                 MaxTokens = 2000,
-                System = "あなたは製造業向け受注管理システムのAIアシスタントです。アップロードされた注文書・受注書の画像またはPDFから、取引先名・受注日・希望納期・品目明細（品名・数量・単価）を読み取り、指定されたツールを使って構造化データとして返してください。読み取れない項目は空文字または0にしてください。数値は半角数字に変換してください。手書き文字や不鮮明な部分がある場合は、confidenceを低く設定してください。",
+                System = "あなたは製造業向け受注管理システムのAIアシスタントです。アップロードされた注文書・受注書の画像またはPDFから、取引先名・受注日・希望納期・品目明細（品名・数量・単価）を読み取り、指定されたツールを使って構造化データとして返してください。数値は半角数字に変換してください。" +
+                    "重要：該当箇所に本当に何も記載がない場合のみ空文字または0にしてください。文字が書かれているが手書きで不鮮明・崩し字・略称（例：「株式会社」を「（株）」と略しているなど）で確信が持てない場合は、絶対に空文字にせず、実際に書かれている通りの文字列をそのまま転記した上で、confidenceを低く設定してください。取引先名（customer_name）も品目と同様に、読み取れる限り必ず転記し、customer_name_confidenceで確信度を表現してください。",
                 Messages = new List<AnthropicMessage>
                 {
                     new AnthropicMessage
@@ -73,7 +74,8 @@ namespace CaseMngmt.Service.Ai
                             type = "object",
                             properties = new
                             {
-                                customer_name = new { type = "string", description = "取引先名。読み取れない場合は空文字" },
+                                customer_name = new { type = "string", description = "取引先名。手書きが不鮮明・崩し字・略称（「（株）」等）でも、実際に書かれている通りの文字列をそのまま転記すること（推測で正式名称に変換したり、確信が持てないからと省略しないこと）。本当に何も記載がない場合のみ空文字" },
+                                customer_name_confidence = new { type = "number", description = "取引先名の読み取りに対する信頼度（0.0〜1.0）。手書きが不鮮明・略称・崩し字などで確信が持てない場合は低い値を設定" },
                                 order_date = new { type = "string", description = "受注日（YYYY-MM-DD形式）。読み取れない場合は空文字" },
                                 requested_delivery_date = new { type = "string", description = "希望納期（YYYY-MM-DD形式）。読み取れない場合は空文字" },
                                 items = new
@@ -93,7 +95,7 @@ namespace CaseMngmt.Service.Ai
                                     }
                                 }
                             },
-                            required = new[] { "items" }
+                            required = new[] { "customer_name", "customer_name_confidence", "items" }
                         }
                     }
                 },
@@ -127,6 +129,10 @@ namespace CaseMngmt.Service.Ai
                 result.CustomerNameGuess = string.IsNullOrWhiteSpace(name) ? null : name;
             }
 
+            result.CustomerNameConfidence = input.TryGetProperty("customer_name_confidence", out var customerConfEl)
+                ? customerConfEl.GetDouble()
+                : 0.5;
+
             if (input.TryGetProperty("order_date", out var orderDateEl) &&
                 DateTime.TryParse(orderDateEl.GetString(), out var orderDate))
             {
@@ -142,8 +148,9 @@ namespace CaseMngmt.Service.Ai
             var companyCustomers = await _customerRepository.GetAllAsync(companyId);
             if (!string.IsNullOrEmpty(result.CustomerNameGuess))
             {
+                var normalizedGuess = NormalizeCompanyName(result.CustomerNameGuess);
                 var matchedCustomer = companyCustomers.FirstOrDefault(c =>
-                    c.Name.Trim().Equals(result.CustomerNameGuess.Trim(), StringComparison.OrdinalIgnoreCase));
+                    NormalizeCompanyName(c.Name).Equals(normalizedGuess, StringComparison.OrdinalIgnoreCase));
                 result.CustomerIdMatch = matchedCustomer?.Id;
             }
 
@@ -172,6 +179,22 @@ namespace CaseMngmt.Service.Ai
             }
 
             return result;
+        }
+
+        private static readonly string[] CompanySuffixVariants =
+        {
+            "株式会社", "（株）", "(株)", "㈱",
+            "有限会社", "（有）", "(有)", "㈲"
+        };
+
+        private static string NormalizeCompanyName(string name)
+        {
+            var normalized = name.Trim();
+            foreach (var suffix in CompanySuffixVariants)
+            {
+                normalized = normalized.Replace(suffix, string.Empty);
+            }
+            return normalized.Trim();
         }
     }
 }
