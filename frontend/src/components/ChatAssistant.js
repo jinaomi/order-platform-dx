@@ -14,6 +14,9 @@ import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import chatService from "../services/chatService";
 import "../styles/styles.css";
 
+const AI_ACCENT_COLOR = "#b85a25";
+const AI_ACCENT_SOFT = "#f2e3d6";
+
 const ChatAssistant = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -80,8 +83,8 @@ const ChatAssistant = () => {
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                backgroundColor: m.role === "user" ? "#11596F" : "#e0e0e0",
-                color: m.role === "user" ? "#fff" : "#11596F",
+                backgroundColor: m.role === "user" ? "#11596F" : AI_ACCENT_SOFT,
+                color: m.role === "user" ? "#fff" : AI_ACCENT_COLOR,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -111,8 +114,8 @@ const ChatAssistant = () => {
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                backgroundColor: "#e0e0e0",
-                color: "#11596F",
+                backgroundColor: AI_ACCENT_SOFT,
+                color: AI_ACCENT_COLOR,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

@@ -257,7 +257,7 @@ const OrderSearch = () => {
       <Grid container spacing={5}>
         <Grid item xs={12}>
           <Grid container columnSpacing={5} rowSpacing={3}>
-            <Grid item xs={12} sm={5} md={4}>
+            <Grid item xs={12} sm={5} md={3}>
               <div className="section-item">
                 <label className="section-label">取引先</label>
                 <FormSelection
@@ -274,13 +274,14 @@ const OrderSearch = () => {
                 />
               </div>
             </Grid>
-            <Grid item xs={12} sm={7} md={5}>
+            <Grid item xs={12} sm={12} md={7}>
               <div className="section-item">
                 <label className="section-label">受注日</label>
                 <div className="section-range">
                   <input
                     type="date"
                     className="section-input"
+                    style={{ width: "auto", flex: "0 0 auto" }}
                     value={searchCriteria.orderDateFrom}
                     onChange={(e) =>
                       setSearchCriteria((v) => ({ ...v, orderDateFrom: e.target.value }))
@@ -290,6 +291,7 @@ const OrderSearch = () => {
                   <input
                     type="date"
                     className="section-input"
+                    style={{ width: "auto", flex: "0 0 auto" }}
                     value={searchCriteria.orderDateTo}
                     min={searchCriteria.orderDateFrom || undefined}
                     onChange={(e) =>

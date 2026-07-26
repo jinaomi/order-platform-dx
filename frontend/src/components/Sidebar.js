@@ -43,9 +43,11 @@ import { useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@emotion/react";
 import useAuth from "../hooks/useAuth";
 
-const DEFAULT_DRAWER_WIDTH = 300;
+const DEFAULT_DRAWER_WIDTH = 340;
 const MIN_DRAWER_WIDTH = 220;
 const MAX_DRAWER_WIDTH = 480;
+const AI_ACCENT_COLOR = "#b85a25";
+const AI_ACCENT_SOFT = "#f2e3d6";
 
 const Sidebar = () => {
   const [drawerWidth, setDrawerWidth] = React.useState(DEFAULT_DRAWER_WIDTH);
@@ -383,10 +385,13 @@ const Sidebar = () => {
       <div
         className="version-info"
         style={{
-          padding: "10px 0px",
+          padding: "12px 0px",
           borderTop: "1px solid #ccc",
-          backgroundColor: "#f8f9fa",
+          backgroundColor: AI_ACCENT_SOFT,
           textAlign: "center",
+          color: AI_ACCENT_COLOR,
+          fontWeight: "bold",
+          fontSize: "1rem",
         }}
       >
         受注管理システム
@@ -484,7 +489,7 @@ const Sidebar = () => {
           component="main"
           sx={{
             flexGrow: 1,
-            mt: "100px",
+            mt: "140px",
             width: { sm: `calc(100% - ${drawerWidth}px)` },
           }}
         >

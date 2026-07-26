@@ -23,6 +23,8 @@ import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import dashboardService from "../services/dashboardService";
 import "../styles/styles.css";
 
+const AI_ACCENT_COLOR = "#b85a25";
+
 const statusColor = {
   Draft: "default",
   Confirmed: "success",
@@ -92,10 +94,10 @@ const AiCommentCard = () => {
             color="text.secondary"
             style={{ display: "flex", alignItems: "center", gap: 8 }}
           >
-            <AutoAwesomeIcon color="primary" />
+            <AutoAwesomeIcon style={{ color: AI_ACCENT_COLOR }} />
             AIによる経営コメントを生成できます（API利用のため、クリックした時のみ実行されます）
           </Typography>
-          <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={generateComment}>
+          <Button variant="outlined" startIcon={<AutoAwesomeIcon style={{ color: AI_ACCENT_COLOR }} />} onClick={generateComment}>
             AI経営コメントを生成
           </Button>
         </CardContent>
@@ -136,9 +138,9 @@ const AiCommentCard = () => {
             gutterBottom
             style={{ display: "flex", alignItems: "center", gap: 8 }}
           >
-            <AutoAwesomeIcon color="primary" /> AI経営コメント
+            <AutoAwesomeIcon style={{ color: AI_ACCENT_COLOR }} /> AI経営コメント
           </Typography>
-          <Button size="small" variant="text" startIcon={<AutoAwesomeIcon />} onClick={generateComment}>
+          <Button size="small" variant="text" startIcon={<AutoAwesomeIcon style={{ color: AI_ACCENT_COLOR }} />} onClick={generateComment}>
             再生成
           </Button>
         </div>
