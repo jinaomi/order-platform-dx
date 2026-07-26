@@ -114,9 +114,9 @@ namespace CaseMngmt.Service.Invoices
             return new InvoiceCreateResult { StatusCode = result, InvoiceId = invoice.Id };
         }
 
-        public async Task<PagedResult<InvoiceViewModel>?> GetAllInvoicesAsync(Guid companyId, Guid? customerId, string? status, DateTime? issueDateFrom, DateTime? issueDateTo, int pageSize, int pageNumber)
+        public async Task<PagedResult<InvoiceViewModel>?> GetAllInvoicesAsync(Guid companyId, Guid? customerId, string? status, string? orderNumber, DateTime? issueDateFrom, DateTime? issueDateTo, int pageSize, int pageNumber)
         {
-            var invoicesFromRepository = await _repository.GetAllAsync(companyId, customerId, status, issueDateFrom, issueDateTo, pageSize, pageNumber);
+            var invoicesFromRepository = await _repository.GetAllAsync(companyId, customerId, status, orderNumber, issueDateFrom, issueDateTo, pageSize, pageNumber);
             if (invoicesFromRepository == null)
             {
                 return null;

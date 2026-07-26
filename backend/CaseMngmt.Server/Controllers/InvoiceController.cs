@@ -20,7 +20,7 @@ namespace CaseMngmt.Server.Controllers
         }
 
         [HttpGet, Route("getAll")]
-        public async Task<IActionResult> GetAll(Guid? customerId = null, string? status = null, DateTime? issueDateFrom = null, DateTime? issueDateTo = null, int? pageSize = 25, int? pageNumber = 1)
+        public async Task<IActionResult> GetAll(Guid? customerId = null, string? status = null, string? orderNumber = null, DateTime? issueDateFrom = null, DateTime? issueDateTo = null, int? pageSize = 25, int? pageNumber = 1)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace CaseMngmt.Server.Controllers
                     return BadRequest();
                 }
 
-                var result = await _service.GetAllInvoicesAsync(Guid.Parse(currentCompanyId), customerId, status, issueDateFrom, issueDateTo, pageSize ?? 25, pageNumber ?? 1);
+                var result = await _service.GetAllInvoicesAsync(Guid.Parse(currentCompanyId), customerId, status, orderNumber, issueDateFrom, issueDateTo, pageSize ?? 25, pageNumber ?? 1);
                 return result != null && result.Items.Any() ? Ok(result) : NotFound();
             }
             catch (Exception e)

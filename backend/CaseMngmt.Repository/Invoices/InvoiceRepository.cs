@@ -27,7 +27,7 @@ namespace CaseMngmt.Repository.Invoices
             }
         }
 
-        public async Task<PagedResult<Invoice>?> GetAllAsync(Guid companyId, Guid? customerId, string? status, DateTime? issueDateFrom, DateTime? issueDateTo, int pageSize, int pageNumber)
+        public async Task<PagedResult<Invoice>?> GetAllAsync(Guid companyId, Guid? customerId, string? status, string? orderNumber, DateTime? issueDateFrom, DateTime? issueDateTo, int pageSize, int pageNumber)
         {
             try
             {
@@ -44,6 +44,11 @@ namespace CaseMngmt.Repository.Invoices
                 if (!string.IsNullOrEmpty(status))
                 {
                     queryable = queryable.Where(x => x.Status == status);
+                }
+
+                if (!string.IsNullOrEmpty(orderNumber))
+                {
+                    queryable = queryable.Where(x => x.Order != null && x.Order.OrderNumber.Contains(orderNumber));
                 }
 
                 if (issueDateFrom.HasValue)

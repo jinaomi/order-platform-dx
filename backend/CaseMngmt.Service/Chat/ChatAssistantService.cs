@@ -261,7 +261,7 @@ namespace CaseMngmt.Service.Chat
         {
             var status = GetStringProperty(input, "status");
 
-            var result = await _invoiceRepository.GetAllAsync(companyId, null, status, null, null, 50, 1);
+            var result = await _invoiceRepository.GetAllAsync(companyId, null, status, null, null, null, 50, 1);
             var query = (result?.Items ?? Enumerable.Empty<Models.Invoices.Invoice>()).AsEnumerable();
 
             var invoices = query.Select(i => new

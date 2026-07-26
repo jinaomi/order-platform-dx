@@ -2,6 +2,7 @@ const getAll = (
   axiosPrivate,
   customerId,
   status,
+  orderNumber,
   issueDateFrom,
   issueDateTo,
   pageSize = 25,
@@ -13,6 +14,9 @@ const getAll = (
   }
   if (status) {
     url += `&status=${status}`;
+  }
+  if (orderNumber) {
+    url += `&orderNumber=${encodeURIComponent(orderNumber)}`;
   }
   if (issueDateFrom) {
     url += `&issueDateFrom=${issueDateFrom}`;

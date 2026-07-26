@@ -43,6 +43,7 @@ const InvoiceSearch = () => {
   const [searchCriteria, setSearchCriteria] = useState({
     customerId: null,
     status: null,
+    orderNumber: "",
     issueDateFrom: "",
     issueDateTo: "",
   });
@@ -72,6 +73,7 @@ const InvoiceSearch = () => {
         axiosPrivate,
         searchCriteria.customerId,
         searchCriteria.status,
+        searchCriteria.orderNumber || null,
         searchCriteria.issueDateFrom || null,
         searchCriteria.issueDateTo || null,
         commonState.paginationState.pageSize,
@@ -230,7 +232,7 @@ const InvoiceSearch = () => {
       <Grid container spacing={5}>
         <Grid item xs={12}>
           <Grid container columnSpacing={5} rowSpacing={3}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={4} md={4}>
               <div className="section-item">
                 <label className="section-label">取引先</label>
                 <FormSelection
@@ -247,7 +249,7 @@ const InvoiceSearch = () => {
                 />
               </div>
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
+            <Grid item xs={12} sm={4} md={4}>
               <div className="section-item">
                 <label className="section-label">ステータス</label>
                 <FormSelection
@@ -264,10 +266,27 @@ const InvoiceSearch = () => {
                 />
               </div>
             </Grid>
-            <Grid item xs={12} sm={12} md={7}>
+            <Grid item xs={12} sm={4} md={4}>
+              <div className="section-item">
+                <label className="section-label">受注番号</label>
+                <input
+                  type="text"
+                  className="section-input"
+                  placeholder="ORD-2026-00001"
+                  value={searchCriteria.orderNumber}
+                  onChange={(e) =>
+                    setSearchCriteria((v) => ({ ...v, orderNumber: e.target.value }))
+                  }
+                />
+              </div>
+            </Grid>
+            <Grid item xs={12}>
               <div className="section-item">
                 <label className="section-label">発行日</label>
-                <div className="section-range">
+                <div
+                  className="section-range"
+                  style={{ justifyContent: "flex-start", gap: "12px" }}
+                >
                   <input
                     type="date"
                     className="section-input"
