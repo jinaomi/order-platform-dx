@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Alert,
+  Button,
   Card,
   CardContent,
   Chip,
@@ -45,11 +46,13 @@ const StatTile = ({ label, value, color }) => (
 
 const AiCommentCard = () => {
   const [comment, setComment] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [requested, setRequested] = useState(false);
   const axiosPrivate = useAxiosPrivate();
 
-  useEffect(async () => {
+  const generateComment = async () => {
     setLoading(true);
+    setRequested(true);
     try {
       const response = await dashboardService.getAiComment(axiosPrivate);
       setComment(response.data || null);
@@ -57,7 +60,7 @@ const AiCommentCard = () => {
       setComment(null);
     }
     setLoading(false);
-  }, []);
+  };
 
   if (loading) {
     return (
@@ -72,20 +75,73 @@ const AiCommentCard = () => {
     );
   }
 
+  if (!requested) {
+    return (
+      <Card>
+        <CardContent
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            style={{ display: "flex", alignItems: "center", gap: 8 }}
+          >
+            <AutoAwesomeIcon color="primary" />
+            AIによる経営コメントを生成できます（API利用のため、クリックした時のみ実行されます）
+          </Typography>
+          <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={generateComment}>
+            AI経営コメントを生成
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!comment) {
-    return null;
+    return (
+      <Card>
+        <CardContent
+          style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            コメントの生成に失敗しました。
+          </Typography>
+          <Button variant="text" onClick={generateComment}>
+            再試行
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
     <Card>
       <CardContent>
-        <Typography
-          variant="h6"
-          gutterBottom
-          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
         >
-          <AutoAwesomeIcon color="primary" /> AI経営コメント
-        </Typography>
+          <Typography
+            variant="h6"
+            gutterBottom
+            style={{ display: "flex", alignItems: "center", gap: 8 }}
+          >
+            <AutoAwesomeIcon color="primary" /> AI経営コメント
+          </Typography>
+          <Button size="small" variant="text" startIcon={<AutoAwesomeIcon />} onClick={generateComment}>
+            再生成
+          </Button>
+        </div>
         <Typography variant="subtitle1" style={{ fontWeight: "bold" }} gutterBottom>
           {comment.headline}
         </Typography>

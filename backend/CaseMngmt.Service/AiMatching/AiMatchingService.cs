@@ -48,6 +48,7 @@ namespace CaseMngmt.Service.AiMatching
             }
 
             var products = await _productRepository.GetAllAsync(companyId);
+            var committedByOthers = await _orderRepository.GetCommittedQuantitiesAsync(companyId, orderId);
             var today = DateTime.UtcNow.Date;
             var leadDays = order.RequestedDeliveryDate.HasValue
                 ? Math.Max((order.RequestedDeliveryDate.Value.Date - today).Days, 0)
@@ -60,7 +61,11 @@ namespace CaseMngmt.Service.AiMatching
                     ? products.FirstOrDefault(p => p.Id == item.ProductId.Value)
                     : products.FirstOrDefault(p => p.Name.Trim().Equals(item.ProductNameRaw.Trim(), StringComparison.OrdinalIgnoreCase));
 
-                lineAssessments.Add(BuildDeterministicAssessment(item, product, leadDays));
+                var committedQuantity = product != null && committedByOthers.TryGetValue(product.Id, out var committed)
+                    ? committed
+                    : 0m;
+
+                lineAssessments.Add(BuildDeterministicAssessment(item, product, leadDays, committedQuantity));
             }
 
             await EnrichWithAiReasoningAsync(order, lineAssessments);
@@ -121,7 +126,7 @@ namespace CaseMngmt.Service.AiMatching
             };
         }
 
-        private static LineAssessment BuildDeterministicAssessment(OrderItem item, Product? product, int leadDays)
+        private static LineAssessment BuildDeterministicAssessment(OrderItem item, Product? product, int leadDays, decimal committedByOthers)
         {
             if (product == null)
             {
@@ -130,10 +135,11 @@ namespace CaseMngmt.Service.AiMatching
                     "手動で在庫状況をご確認ください。");
             }
 
-            var availableWithCapacity = product.StockQuantity + (product.ProductionCapacityPerDay ?? 0) * leadDays;
+            var effectiveStock = product.StockQuantity - committedByOthers;
+            var availableWithCapacity = effectiveStock + (product.ProductionCapacityPerDay ?? 0) * leadDays;
 
             string riskLevel;
-            if (item.Quantity <= product.StockQuantity)
+            if (item.Quantity <= effectiveStock)
             {
                 riskLevel = RiskSufficient;
             }
@@ -146,7 +152,11 @@ namespace CaseMngmt.Service.AiMatching
                 riskLevel = RiskInsufficient;
             }
 
-            return new LineAssessment(item, product, riskLevel, string.Empty, null);
+            return new LineAssessment(item, product, riskLevel, string.Empty, null)
+            {
+                CommittedByOthers = committedByOthers,
+                EffectiveStock = effectiveStock
+            };
         }
 
         private async Task EnrichWithAiReasoningAsync(Order order, List<LineAssessment> assessments)
@@ -159,6 +169,8 @@ namespace CaseMngmt.Service.AiMatching
                 unit = a.Product?.UnitOfMeasure ?? "",
                 risk_level = a.RiskLevel,
                 stock_quantity = a.Product?.StockQuantity,
+                committed_by_other_orders = a.Product != null ? a.CommittedByOthers : (decimal?)null,
+                effective_available_stock = a.Product != null ? a.EffectiveStock : (decimal?)null,
                 production_capacity_per_day = a.Product?.ProductionCapacityPerDay,
             }).ToList();
 
@@ -173,7 +185,7 @@ namespace CaseMngmt.Service.AiMatching
             {
                 Model = ModelId,
                 MaxTokens = 1500,
-                System = "あなたは製造業向け受注管理システムのAIアシスタントです。各受注明細行について、在庫数量・生産能力から算出済みのリスク判定(risk_level)を踏まえ、現場担当者にとって分かりやすい日本語で状況説明と推奨対応を簡潔に生成してください。risk_level自体は既に確定しているため変更せず、説明文の生成のみ行ってください。",
+                System = "あなたは製造業向け受注管理システムのAIアシスタントです。各受注明細行について、在庫数量・生産能力から算出済みのリスク判定(risk_level)を踏まえ、現場担当者にとって分かりやすい日本語で状況説明と推奨対応を簡潔に生成してください。committed_by_other_orders(他の未請求受注に確保済みの数量)が0より大きい場合は、在庫が他の受注で圧迫されている旨を具体的な数字とともに説明に含めてください。risk_level自体は既に確定しているため変更せず、説明文の生成のみ行ってください。",
                 Messages = new List<AnthropicMessage>
                 {
                     new AnthropicMessage { Role = "user", Content = userContent }
@@ -325,6 +337,8 @@ namespace CaseMngmt.Service.AiMatching
             public string RiskLevel { get; set; }
             public string Reasoning { get; set; }
             public string? SuggestedAction { get; set; }
+            public decimal CommittedByOthers { get; set; }
+            public decimal EffectiveStock { get; set; }
         }
     }
 }

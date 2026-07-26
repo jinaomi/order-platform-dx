@@ -212,7 +212,7 @@ namespace CaseMngmt.Service.Chat
                 customerId = match.Id;
             }
 
-            var result = await _orderRepository.GetAllAsync(companyId, status, customerId, 50, 1);
+            var result = await _orderRepository.GetAllAsync(companyId, status, customerId, null, null, 50, 1);
             var orders = (result?.Items ?? Enumerable.Empty<Models.Orders.Order>()).Select(o => new
             {
                 orderNumber = o.OrderNumber,
@@ -261,12 +261,8 @@ namespace CaseMngmt.Service.Chat
         {
             var status = GetStringProperty(input, "status");
 
-            var result = await _invoiceRepository.GetAllAsync(companyId, 50, 1);
+            var result = await _invoiceRepository.GetAllAsync(companyId, null, status, null, null, 50, 1);
             var query = (result?.Items ?? Enumerable.Empty<Models.Invoices.Invoice>()).AsEnumerable();
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                query = query.Where(i => string.Equals(i.Status, status, StringComparison.OrdinalIgnoreCase));
-            }
 
             var invoices = query.Select(i => new
             {

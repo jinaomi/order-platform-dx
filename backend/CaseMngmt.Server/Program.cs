@@ -93,7 +93,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAnyHost", builder =>
     {
-        builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost" || new Uri(origin).Host == "casemngmt.s3-website-ap-northeast-1.amazonaws.com");
+        builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost");
         builder.AllowAnyHeader();
         builder.AllowAnyMethod();
         builder.AllowCredentials();
@@ -239,11 +239,8 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-// Seed data (users, roles, templates)
-if (app.Environment.IsDevelopment())
-{
-    await app.UseItToSeedSqlServer();
-}
+// Seed data (users, roles, templates) — runs on every startup, idempotent
+await app.UseItToSeedSqlServer();
 
 app.UseRouting();
 app.UseCors("AllowAnyHost");

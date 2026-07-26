@@ -1,10 +1,24 @@
-const getAll = (axiosPrivate, status, customerId, pageSize = 25, pageNumber = 1) => {
+const getAll = (
+  axiosPrivate,
+  status,
+  customerId,
+  orderDateFrom,
+  orderDateTo,
+  pageSize = 25,
+  pageNumber = 1
+) => {
   let url = `/api/order/getAll?pageSize=${pageSize}&pageNumber=${pageNumber}`;
   if (status) {
     url += `&status=${status}`;
   }
   if (customerId) {
     url += `&customerId=${customerId}`;
+  }
+  if (orderDateFrom) {
+    url += `&orderDateFrom=${orderDateFrom}`;
+  }
+  if (orderDateTo) {
+    url += `&orderDateTo=${orderDateTo}`;
   }
   return axiosPrivate.get(url);
 };

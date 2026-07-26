@@ -10,6 +10,7 @@ namespace CaseMngmt.Models.Orders
         public DateTime OrderDate { get; set; }
         public DateTime? RequestedDeliveryDate { get; set; }
         public string Status { get; set; }
+        public string? RiskLevel { get; set; }
         public string SourceType { get; set; }
         public string? SourceDocumentPath { get; set; }
         public decimal SubTotalAmount { get; set; }

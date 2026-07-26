@@ -27,15 +27,36 @@ namespace CaseMngmt.Repository.Invoices
             }
         }
 
-        public async Task<PagedResult<Invoice>?> GetAllAsync(Guid companyId, int pageSize, int pageNumber)
+        public async Task<PagedResult<Invoice>?> GetAllAsync(Guid companyId, Guid? customerId, string? status, DateTime? issueDateFrom, DateTime? issueDateTo, int pageSize, int pageNumber)
         {
             try
             {
                 var queryable = _context.Invoice
                     .Include(x => x.Order)
                     .Include(x => x.Customer)
-                    .Where(x => !x.Deleted && x.CompanyId == companyId)
-                    .OrderByDescending(x => x.IssueDate);
+                    .Where(x => !x.Deleted && x.CompanyId == companyId);
+
+                if (customerId.HasValue)
+                {
+                    queryable = queryable.Where(x => x.CustomerId == customerId.Value);
+                }
+
+                if (!string.IsNullOrEmpty(status))
+                {
+                    queryable = queryable.Where(x => x.Status == status);
+                }
+
+                if (issueDateFrom.HasValue)
+                {
+                    queryable = queryable.Where(x => x.IssueDate >= issueDateFrom.Value.Date);
+                }
+
+                if (issueDateTo.HasValue)
+                {
+                    queryable = queryable.Where(x => x.IssueDate < issueDateTo.Value.Date.AddDays(1));
+                }
+
+                queryable = queryable.OrderByDescending(x => x.IssueDate);
 
                 return await PagedResult<Invoice>.CreateAsync(queryable.AsNoTracking(), pageNumber, pageSize);
             }

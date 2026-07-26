@@ -43,19 +43,54 @@ import { useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@emotion/react";
 import useAuth from "../hooks/useAuth";
 
-const drawerWidth = 300;
+const DEFAULT_DRAWER_WIDTH = 300;
+const MIN_DRAWER_WIDTH = 220;
+const MAX_DRAWER_WIDTH = 480;
 
 const Sidebar = () => {
+  const [drawerWidth, setDrawerWidth] = React.useState(DEFAULT_DRAWER_WIDTH);
+  const isResizing = React.useRef(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [customerOpen, setCustomerOpen] = React.useState(true);
-  const [caseOpen, setCaseOpen] = React.useState(true);
-  const [orderOpen, setOrderOpen] = React.useState(true);
+  const [customerOpen, setCustomerOpen] = React.useState(false);
+  const [caseOpen, setCaseOpen] = React.useState(false);
+  const [orderOpen, setOrderOpen] = React.useState(false);
   const [header, setHeader] = React.useState();
   const [caseId, setCaseDetail] = React.useState("");
   const [customerId, setCustomerDetail] = React.useState("");
   const navigate = useNavigate();
   const { auth } = useAuth();
   const isSuperAdmin = auth?.roles?.includes("SuperAdmin");
+
+  const handleResizeStart = (e) => {
+    e.preventDefault();
+    isResizing.current = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  React.useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing.current) return;
+      const newWidth = Math.min(
+        MAX_DRAWER_WIDTH,
+        Math.max(MIN_DRAWER_WIDTH, e.clientX)
+      );
+      setDrawerWidth(newWidth);
+    };
+    const handleMouseUp = () => {
+      if (isResizing.current) {
+        isResizing.current = false;
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   const theme = createTheme({
     typography: {
@@ -344,21 +379,17 @@ const Sidebar = () => {
           </ListItemButton>
         </List>
       )}
-      {/* Footer (Version Information) */}
+      {/* Footer (System Name) */}
       <div
         className="version-info"
         style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          width: "100%",
           padding: "10px 0px",
           borderTop: "1px solid #ccc",
           backgroundColor: "#f8f9fa",
           textAlign: "center",
         }}
       >
-        Powered by ITFreee
+        受注管理システム
       </div>
     </div>
   );
@@ -434,6 +465,20 @@ const Sidebar = () => {
           >
             {drawer}
           </Drawer>
+          <Box
+            onMouseDown={handleResizeStart}
+            sx={{
+              display: { xs: "none", sm: "block" },
+              position: "fixed",
+              top: 0,
+              left: drawerWidth - 3,
+              width: "6px",
+              height: "100vh",
+              cursor: "col-resize",
+              zIndex: (t) => t.zIndex.drawer + 1,
+              "&:hover": { backgroundColor: "rgba(17, 89, 111, 0.3)" },
+            }}
+          />
         </Box>
         <Box
           component="main"

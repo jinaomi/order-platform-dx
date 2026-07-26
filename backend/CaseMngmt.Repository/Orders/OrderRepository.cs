@@ -58,7 +58,7 @@ namespace CaseMngmt.Repository.Orders
             }
         }
 
-        public async Task<PagedResult<Order>?> GetAllAsync(Guid companyId, string? status, Guid? customerId, int pageSize, int pageNumber)
+        public async Task<PagedResult<Order>?> GetAllAsync(Guid companyId, string? status, Guid? customerId, DateTime? orderDateFrom, DateTime? orderDateTo, int pageSize, int pageNumber)
         {
             try
             {
@@ -75,6 +75,16 @@ namespace CaseMngmt.Repository.Orders
                 if (customerId.HasValue)
                 {
                     queryableOrder = queryableOrder.Where(x => x.CustomerId == customerId.Value);
+                }
+
+                if (orderDateFrom.HasValue)
+                {
+                    queryableOrder = queryableOrder.Where(x => x.OrderDate >= orderDateFrom.Value.Date);
+                }
+
+                if (orderDateTo.HasValue)
+                {
+                    queryableOrder = queryableOrder.Where(x => x.OrderDate < orderDateTo.Value.Date.AddDays(1));
                 }
 
                 queryableOrder = queryableOrder.OrderByDescending(x => x.OrderDate);
@@ -128,6 +138,33 @@ namespace CaseMngmt.Repository.Orders
             catch (Exception)
             {
                 return new List<Order>();
+            }
+        }
+
+        public async Task<Dictionary<Guid, decimal>> GetCommittedQuantitiesAsync(Guid companyId, Guid excludeOrderId)
+        {
+            try
+            {
+                var committedStatuses = new[] { "Confirmed", "RiskFlagged" };
+
+                var grouped = await _context.OrderItem
+                    .Include(x => x.Order)
+                    .Where(x => !x.Deleted
+                        && x.ProductId.HasValue
+                        && x.Order != null
+                        && !x.Order.Deleted
+                        && x.Order.CompanyId == companyId
+                        && x.Order.Id != excludeOrderId
+                        && committedStatuses.Contains(x.Order.Status))
+                    .GroupBy(x => x.ProductId!.Value)
+                    .Select(g => new { ProductId = g.Key, Total = g.Sum(x => x.Quantity) })
+                    .ToListAsync();
+
+                return grouped.ToDictionary(x => x.ProductId, x => x.Total);
+            }
+            catch (Exception)
+            {
+                return new Dictionary<Guid, decimal>();
             }
         }
 

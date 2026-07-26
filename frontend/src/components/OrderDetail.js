@@ -87,10 +87,11 @@ const OrderDetail = ({ orderId }) => {
     }
   };
 
-  const getOrderDetail = async () => {
+  const getOrderDetail = async (id) => {
+    const targetId = id || dataId || orderId;
     setLoading(true);
     try {
-      const response = await orderService.getById(axiosPrivate, orderId);
+      const response = await orderService.getById(axiosPrivate, targetId);
       const data = response.data;
       setDataId(data.id);
       setOrderInfo(data);
@@ -293,7 +294,7 @@ const OrderDetail = ({ orderId }) => {
           status: "success",
           message: "受注の登録は正常に完了しました！",
         });
-        await getOrderDetail();
+        await getOrderDetail(response.data);
       }
     } catch (error) {
       setSnackbar({

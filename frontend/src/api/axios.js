@@ -1,5 +1,7 @@
 import axios from 'axios';
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://13.114.116.252/casemngmt';
+const BASE_URL = process.env.REACT_APP_BASE_URL !== undefined
+    ? process.env.REACT_APP_BASE_URL
+    : 'http://13.114.116.252/casemngmt';
 
 export default axios.create({
     baseURL: BASE_URL

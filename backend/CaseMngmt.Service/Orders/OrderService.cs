@@ -1,5 +1,6 @@
 using CaseMngmt.Models;
 using CaseMngmt.Models.Orders;
+using CaseMngmt.Repository.AiMatching;
 using CaseMngmt.Repository.Orders;
 using CaseMngmt.Repository.Products;
 
@@ -9,11 +10,13 @@ namespace CaseMngmt.Service.Orders
     {
         private readonly IOrderRepository _repository;
         private readonly IProductRepository _productRepository;
+        private readonly IOrderRiskRepository _riskRepository;
 
-        public OrderService(IOrderRepository repository, IProductRepository productRepository)
+        public OrderService(IOrderRepository repository, IProductRepository productRepository, IOrderRiskRepository riskRepository)
         {
             _repository = repository;
             _productRepository = productRepository;
+            _riskRepository = riskRepository;
         }
 
         public async Task<Guid?> CreateOrderAsync(OrderRequest request, Guid currentUserId)
@@ -93,18 +96,27 @@ namespace CaseMngmt.Service.Orders
             }
         }
 
-        public async Task<PagedResult<OrderViewModel>?> GetAllOrdersAsync(Guid companyId, string? status, Guid? customerId, int pageSize, int pageNumber)
+        public async Task<PagedResult<OrderViewModel>?> GetAllOrdersAsync(Guid companyId, string? status, Guid? customerId, DateTime? orderDateFrom, DateTime? orderDateTo, int pageSize, int pageNumber)
         {
             try
             {
-                var ordersFromRepository = await _repository.GetAllAsync(companyId, status, customerId, pageSize, pageNumber);
+                var ordersFromRepository = await _repository.GetAllAsync(companyId, status, customerId, orderDateFrom, orderDateTo, pageSize, pageNumber);
                 if (ordersFromRepository == null)
                 {
                     return null;
                 }
 
+                var viewModels = ordersFromRepository.Items.Select(MapToViewModel).ToList();
+
+                var orderIds = viewModels.Select(v => v.Id).ToList();
+                var riskLevels = await _riskRepository.GetOverallRiskLevelsByOrderIdsAsync(orderIds);
+                foreach (var viewModel in viewModels)
+                {
+                    viewModel.RiskLevel = riskLevels.GetValueOrDefault(viewModel.Id);
+                }
+
                 return new PagedResult<OrderViewModel>(
-                    ordersFromRepository.Items.Select(MapToViewModel),
+                    viewModels,
                     ordersFromRepository.TotalCount,
                     ordersFromRepository.CurrentPage,
                     ordersFromRepository.PageSize);

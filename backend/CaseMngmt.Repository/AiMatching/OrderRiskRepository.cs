@@ -61,5 +61,28 @@ namespace CaseMngmt.Repository.AiMatching
                 return new List<OrderRiskLineResult>();
             }
         }
+
+        public async Task<Dictionary<Guid, string>> GetOverallRiskLevelsByOrderIdsAsync(List<Guid> orderIds)
+        {
+            try
+            {
+                var riskPriority = new Dictionary<string, int> { ["Insufficient"] = 2, ["Warning"] = 1, ["Sufficient"] = 0 };
+
+                var results = await _context.OrderRiskLineResult
+                    .Where(x => !x.Deleted && orderIds.Contains(x.OrderId))
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return results
+                    .GroupBy(x => x.OrderId)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.OrderByDescending(x => riskPriority.GetValueOrDefault(x.RiskLevel, 0)).First().RiskLevel);
+            }
+            catch (Exception)
+            {
+                return new Dictionary<Guid, string>();
+            }
+        }
     }
 }

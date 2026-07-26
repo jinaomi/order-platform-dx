@@ -1,5 +1,26 @@
-const getAll = (axiosPrivate, pageSize = 25, pageNumber = 1) => {
-  return axiosPrivate.get(`/api/invoice/getAll?pageSize=${pageSize}&pageNumber=${pageNumber}`);
+const getAll = (
+  axiosPrivate,
+  customerId,
+  status,
+  issueDateFrom,
+  issueDateTo,
+  pageSize = 25,
+  pageNumber = 1
+) => {
+  let url = `/api/invoice/getAll?pageSize=${pageSize}&pageNumber=${pageNumber}`;
+  if (customerId) {
+    url += `&customerId=${customerId}`;
+  }
+  if (status) {
+    url += `&status=${status}`;
+  }
+  if (issueDateFrom) {
+    url += `&issueDateFrom=${issueDateFrom}`;
+  }
+  if (issueDateTo) {
+    url += `&issueDateTo=${issueDateTo}`;
+  }
+  return axiosPrivate.get(url);
 };
 
 const getById = (axiosPrivate, id) => {

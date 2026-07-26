@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoadingSpinner from "./until/LoadingSpinner";
 import FormButton from "./until/FormButton";
+import FormSelection from "./until/FormSelection";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import Pagination from "./until/Pagination";
 import commonState from "../stories/commonState.ts";
@@ -29,10 +30,22 @@ const statusColor = {
   Overdue: "error",
 };
 
+const statusOptions = [
+  { id: "Issued", label: "発行済み" },
+  { id: "Paid", label: "入金済み" },
+];
+
 const InvoiceSearch = () => {
   const [showList, setShowList] = useState(false);
   const [listItem, setListItem] = useState({ items: [] });
   const [loading, setLoading] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [searchCriteria, setSearchCriteria] = useState({
+    customerId: null,
+    status: null,
+    issueDateFrom: "",
+    issueDateTo: "",
+  });
   const axiosPrivate = useAxiosPrivate();
   const [snackbar, setSnackbar] = useState({
     isOpen: false,
@@ -40,12 +53,27 @@ const InvoiceSearch = () => {
     message: "Successfully!",
   });
 
+  useEffect(async () => {
+    try {
+      const customerResponse = await axiosPrivate.get(
+        "/api/Customer/getAll?pageSize=1000&pageNumber=1"
+      );
+      setCustomers(customerResponse.data.items || []);
+    } catch (error) {
+      setCustomers([]);
+    }
+  }, []);
+
   const getInvoices = async (e) => {
     setLoading(true);
     if (e) e.preventDefault();
     await invoiceService
       .getAll(
         axiosPrivate,
+        searchCriteria.customerId,
+        searchCriteria.status,
+        searchCriteria.issueDateFrom || null,
+        searchCriteria.issueDateTo || null,
         commonState.paginationState.pageSize,
         commonState.paginationState.currentPage
       )
@@ -200,6 +228,69 @@ const InvoiceSearch = () => {
   return (
     <section>
       <Grid container spacing={5}>
+        <Grid item xs={12}>
+          <Grid container columnSpacing={5} rowSpacing={3}>
+            <Grid item xs={12} sm={6} md={4}>
+              <div className="section-item">
+                <label className="section-label">取引先</label>
+                <FormSelection
+                  value={
+                    customers.find((c) => c.id === searchCriteria.customerId) || null
+                  }
+                  options={customers}
+                  optionSelected={(e, value) =>
+                    setSearchCriteria((v) => ({
+                      ...v,
+                      customerId: value ? value.id : null,
+                    }))
+                  }
+                />
+              </div>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <div className="section-item">
+                <label className="section-label">ステータス</label>
+                <FormSelection
+                  value={
+                    statusOptions.find((s) => s.id === searchCriteria.status) || null
+                  }
+                  options={statusOptions}
+                  optionSelected={(e, value) =>
+                    setSearchCriteria((v) => ({
+                      ...v,
+                      status: value ? value.id : null,
+                    }))
+                  }
+                />
+              </div>
+            </Grid>
+            <Grid item xs={12} sm={12} md={5}>
+              <div className="section-item">
+                <label className="section-label">発行日</label>
+                <div className="section-range">
+                  <input
+                    type="date"
+                    className="section-input"
+                    value={searchCriteria.issueDateFrom}
+                    onChange={(e) =>
+                      setSearchCriteria((v) => ({ ...v, issueDateFrom: e.target.value }))
+                    }
+                  />
+                  <span>〜</span>
+                  <input
+                    type="date"
+                    className="section-input"
+                    value={searchCriteria.issueDateTo}
+                    min={searchCriteria.issueDateFrom || undefined}
+                    onChange={(e) =>
+                      setSearchCriteria((v) => ({ ...v, issueDateTo: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+            </Grid>
+          </Grid>
+        </Grid>
         <Grid item xs={12}>
           <div className="handle-button">
             <FormButton itemName="検索" onClick={handleClickSearch} />

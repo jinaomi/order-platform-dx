@@ -41,7 +41,7 @@ namespace CaseMngmt.Server.Controllers
         }
 
         [HttpGet, Route("getAll")]
-        public async Task<IActionResult> GetAll(string? status = null, Guid? customerId = null, int? pageSize = 25, int? pageNumber = 1)
+        public async Task<IActionResult> GetAll(string? status = null, Guid? customerId = null, DateTime? orderDateFrom = null, DateTime? orderDateTo = null, int? pageSize = 25, int? pageNumber = 1)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace CaseMngmt.Server.Controllers
                     return BadRequest();
                 }
 
-                var result = await _service.GetAllOrdersAsync(Guid.Parse(currentCompanyId), status, customerId, pageSize ?? 25, pageNumber ?? 1);
+                var result = await _service.GetAllOrdersAsync(Guid.Parse(currentCompanyId), status, customerId, orderDateFrom, orderDateTo, pageSize ?? 25, pageNumber ?? 1);
                 return result != null && result.Items.Any() ? Ok(result) : NotFound();
             }
             catch (Exception e)

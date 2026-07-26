@@ -5,10 +5,20 @@
 .vs/
 *.nupkg
 
+# Local env overrides (machine-specific, never shared)
+frontend/.env.*.local
+
+# Production secrets — KHÔNG commit lên git
+backend/CaseMngmt.Server/appsettings.Production.json
+
 # Frontend dependencies & build
 frontend/node_modules/
 frontend/build/
 frontend/coverage/
+
+# wwwroot — chứa React build (do CI/CD tạo, không commit)
+backend/CaseMngmt.Server/wwwroot/*
+!backend/CaseMngmt.Server/wwwroot/.gitkeep
 
 # Uploaded files (runtime data, not source)
 UploadedFiles/
@@ -19,3 +29,6 @@ UploadedFiles/
 # OS
 .DS_Store
 Thumbs.db
+
+# Debug/run logs (local only)
+*.log*

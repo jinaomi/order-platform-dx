@@ -11,32 +11,36 @@ Tài liệu bổ sung:
 
 ---
 
-## Current State (2026-07-25)
+## Current State (2026-07-26)
 
 Ngoài hệ thống Case/Template gốc mô tả bên dưới, project đã được mở rộng thành nền tảng **受注業務DX** (order-processing) cho SME sản xuất Nhật Bản, dùng để demo bán hàng. Toàn bộ 6 bước của flow đã triển khai và test qua API/UI thật:
 
 `受注 → データ化 → AI照合 → 請求作成 → 売上分析 → 経営判断`
 
-- **受注 (Order/OrderItem)**: module quan hệ riêng (`CaseMngmt.Model/Orders/`), KHÔNG dùng EAV Case/Keyword. FK thật tới Customer, `OrderNumber` tự sinh.
-- **Product/tồn kho** (`CaseMngmt.Model/Products/`): `StockQuantity`, `ProductionCapacityPerDay`, CRUD admin.
+- **受注 (Order/OrderItem)**: module quan hệ riêng (`CaseMngmt.Model/Orders/`), KHÔNG dùng EAV Case/Keyword. FK thật tới Customer, `OrderNumber` tự sinh. 受注検索 có 検索条件 (取引先, 受注日 range) + cột **AI照合** hiện risk level tệ nhất của từng đơn.
+- **Product/tồn kho** (`CaseMngmt.Model/Products/`): `StockQuantity`, `ProductionCapacityPerDay`, CRUD admin. `StockQuantity` **trừ thật** khi 1 đơn được xuất請求書 (Invoiced) — trước đó (Confirmed/RiskFlagged) chỉ tính "đang giữ chỗ" động, không trừ thật.
 - **データ化**: `IAiOrderExtractionService` — Claude vision (forced tool-call) đọc ảnh/PDF đơn hàng → trả draft chưa lưu DB → `OrderIntakeUpload.js` cho duyệt trước khi confirm lưu.
-- **AI照合**: `IAiMatchingService` — risk level tính deterministic bằng C#, Claude chỉ enrich giải thích tiếng Nhật (forced tool-call). Entity `OrderRiskLineResult`. Tự chạy khi confirm order.
-- **請求作成**: entity `Invoice`, PDF qua QuestPDF (font MS Gothic), chặn tạo invoice từ order `RiskFlagged` (409 theo convention `-1`).
+- **AI照合**: `IAiMatchingService` — risk level tính deterministic bằng C# (`item.Quantity` so với `StockQuantity - GetCommittedQuantitiesAsync(đơn khác chưa Invoiced)`, không còn tính đơn độc lập gây double-count), Claude chỉ enrich giải thích tiếng Nhật (forced tool-call). Entity `OrderRiskLineResult`. Tự chạy khi confirm order.
+- **請求作成**: entity `Invoice`, PDF qua QuestPDF (font MS Gothic), chặn tạo invoice từ order `RiskFlagged` (409 theo convention `-1`), trừ `Product.StockQuantity` khi tạo thành công. 請求書管理 có 検索条件 (取引先, ステータス, 発行日 range).
 - **売上分析**: `DashboardService.GetSummaryAsync` (LINQ thuần, không entity mới) + `SalesDashboard.js`.
 - **経営判断**: `IDashboardCommentService` — dashboard AI comment (headline/highlights/recommendation tiếng Nhật, forced tool-call), không lưu DB, endpoint trả 204/ẩn lặng lẽ nếu lỗi.
 - **Chat AI**: `IChatAssistantService` — trợ lý hỏi-đáp read-only qua **agentic tool-use loop thật** (`while stop_reason == "tool_use"`, khác các service khác chỉ gọi Claude 1 lần với forced tool-call), 4 tool (dashboard/orders/products/invoices). `companyId` luôn lấy server-side từ JWT, không bao giờ nhận từ input Claude. Lịch sử chat KHÔNG lưu DB (chỉ React state, mất khi refresh).
 
 Toàn bộ AI feature dùng chung `AnthropicClient` (`CaseMngmt.Service/Ai/AnthropicClient.cs`), model `claude-opus-4-8`, API key qua `dotnet user-secrets` (KHÔNG trong appsettings.json).
 
-**Build health (2026-07-25)**: `dotnet build` (backend) và `npm run build` (frontend) đều pass — chỉ còn warning cũ không liên quan (nullable/eslint exhaustive-deps), không có lỗi.
+**Build health (2026-07-26)**: `dotnet build` (backend, 8 warning không nghiêm trọng) và `npm run build` (frontend) đều pass, không lỗi.
 
-**Ghi chú môi trường quan trọng**: `git` KHÔNG khả dụng qua PowerShell tool trong môi trường Claude Code hiện tại (không tìm thấy `git.exe` trong PATH) — mọi thao tác git (status/diff/commit/push) phải do user tự làm qua terminal/VSCode khác. Custom command `/wrap-up` (`.claude/commands/wrap-up.md`) đã được chỉnh để bỏ qua hoàn toàn bước Git vì lý do này.
+**Demo/chia sẻ ra ngoài**:
+- Repo demo riêng (history sạch, đã sanitize secret): **https://github.com/jinaomi/order-platform-dx** — tách biệt hoàn toàn khỏi repo `case-management` gốc.
+- App hiện đang chạy production build, serve qua 1 cổng (`backend/CaseMngmt.Server/wwwroot`) và public qua ngrok tunnel — URL đổi mỗi lần restart ngrok, xem devlog gần nhất hoặc hỏi lại để lấy URL hiện tại. Quy trình build+deploy: `npm run build` (frontend) → mirror vào `wwwroot` (`robocopy ... /MIR`) → chạy backend với `--no-launch-profile` (né SpaProxy cũ trỏ thư mục không tồn tại) → `ngrok http 5178`.
+
+**Ghi chú môi trường quan trọng (đã đổi so với trước)**: `git` (2.55.0) và `ngrok` (3.39.10) giờ **đã cài** qua winget, dùng được — nhưng PATH KHÔNG tự refresh giữa các lần gọi PowerShell tool (mỗi lệnh là tiến trình mới, phải tự nạp lại `$env:PATH` từ registry Machine+User trước khi gọi `git`/`ngrok`, xem ví dụ trong devlog 2026-07-26). ngrok từng bị Windows Defender quarantine ngay khi tự update — đã fix bằng cách user thêm Defender exclusion cho `%LOCALAPPDATA%\Microsoft\WinGet\Packages`.
 
 ## Next Steps
 
-1. **User tự commit + push** toàn bộ thay đổi (Order/Invoice/AI照合/データ化/Dashboard/Chat AI modules) — Claude không thể thao tác git qua shell trong môi trường hiện tại.
-2. Test Chat AI qua giao diện trình duyệt thật (mới test qua API/PowerShell, chưa test UI thật).
-3. Rotate AWS S3 access key/secret key đang hardcode plaintext trong `backend/CaseMngmt.Server/appsettings.json` — cần user xác nhận trước vì ảnh hưởng môi trường đang deploy.
+1. **User tự commit + push** toàn bộ thay đổi (repo `case-management` gốc) — dù `git` giờ đã cài được trong session này, chưa có xác nhận từ user để tự động commit; rất nhiều thay đổi 2026-07-25 + 2026-07-26 chưa vào version control.
+2. Rotate AWS S3 access key/secret key đang hardcode plaintext trong `backend/CaseMngmt.Server/appsettings.json` (repo gốc) — cần user xác nhận trước vì ảnh hưởng môi trường đang deploy.
+3. Thêm `*.log` vào `.gitignore` gốc (hiện `ngrok_run.log`, `backend_run.log*` chưa bị ignore, dễ commit nhầm).
 4. Quyết định có triển khai RAG hay không (hướng mở rộng AI thứ 3 đã thảo luận, sau Dashboard comment + Chat AI), hoặc chuyển sang các việc treo khác.
 5. Excel import cho Product (`ClosedXML`) — nguồn dữ liệu tồn kho thực tế của SME hiện quản lý bằng Excel.
 6. Chart đẹp bằng `@mui/x-charts` thay stat tile/bảng thô trên `SalesDashboard.js`.

@@ -4,6 +4,7 @@ using CaseMngmt.Repository.Companies;
 using CaseMngmt.Repository.Customers;
 using CaseMngmt.Repository.Invoices;
 using CaseMngmt.Repository.Orders;
+using CaseMngmt.Repository.Products;
 
 namespace CaseMngmt.Service.Invoices
 {
@@ -13,6 +14,7 @@ namespace CaseMngmt.Service.Invoices
         private readonly IOrderRepository _orderRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IInvoicePdfService _pdfService;
 
         private static readonly string[] InvoiceableStatuses = { "Confirmed" };
@@ -22,12 +24,14 @@ namespace CaseMngmt.Service.Invoices
             IOrderRepository orderRepository,
             ICompanyRepository companyRepository,
             ICustomerRepository customerRepository,
+            IProductRepository productRepository,
             IInvoicePdfService pdfService)
         {
             _repository = repository;
             _orderRepository = orderRepository;
             _companyRepository = companyRepository;
             _customerRepository = customerRepository;
+            _productRepository = productRepository;
             _pdfService = pdfService;
         }
 
@@ -84,12 +88,35 @@ namespace CaseMngmt.Service.Invoices
 
             await _orderRepository.UpdateStatusAsync(order.Id, companyId, "Invoiced", currentUserId);
 
+            // Physical stock is only decremented once the order is actually invoiced (goods considered
+            // shipped at that point) — not at order confirmation, so it can still reflect real warehouse
+            // counts via manual edits/Excel import in the meantime.
+            var orderedProductIds = order.OrderItems
+                .Where(i => i.ProductId.HasValue)
+                .Select(i => i.ProductId!.Value)
+                .Distinct()
+                .ToList();
+
+            if (orderedProductIds.Count > 0)
+            {
+                var products = await _productRepository.GetByIdsAsync(orderedProductIds);
+                foreach (var item in order.OrderItems.Where(i => i.ProductId.HasValue))
+                {
+                    var product = products.FirstOrDefault(p => p.Id == item.ProductId!.Value);
+                    if (product != null)
+                    {
+                        product.StockQuantity -= item.Quantity;
+                        await _productRepository.UpdateAsync(product);
+                    }
+                }
+            }
+
             return new InvoiceCreateResult { StatusCode = result, InvoiceId = invoice.Id };
         }
 
-        public async Task<PagedResult<InvoiceViewModel>?> GetAllInvoicesAsync(Guid companyId, int pageSize, int pageNumber)
+        public async Task<PagedResult<InvoiceViewModel>?> GetAllInvoicesAsync(Guid companyId, Guid? customerId, string? status, DateTime? issueDateFrom, DateTime? issueDateTo, int pageSize, int pageNumber)
         {
-            var invoicesFromRepository = await _repository.GetAllAsync(companyId, pageSize, pageNumber);
+            var invoicesFromRepository = await _repository.GetAllAsync(companyId, customerId, status, issueDateFrom, issueDateTo, pageSize, pageNumber);
             if (invoicesFromRepository == null)
             {
                 return null;

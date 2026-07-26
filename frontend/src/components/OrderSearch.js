@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoadingSpinner from "./until/LoadingSpinner";
 import ConfirmDialog from "./until/ConfirmBox";
 import FormButton from "./until/FormButton";
+import FormSelection from "./until/FormSelection";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import Pagination from "./until/Pagination";
 import commonState from "../stories/commonState.ts";
@@ -33,6 +34,18 @@ const statusColor = {
   Cancelled: "error",
 };
 
+const riskColor = {
+  Sufficient: "success",
+  Warning: "warning",
+  Insufficient: "error",
+};
+
+const riskLabel = {
+  Sufficient: "在庫十分",
+  Warning: "要注意",
+  Insufficient: "不足",
+};
+
 const OrderSearch = () => {
   const [showList, setShowList] = useState(false);
   const [listItem, setListItem] = useState({ items: [] });
@@ -41,12 +54,29 @@ const OrderSearch = () => {
   const [deleteItem, setDeleteItem] = useState({ id: null, orderNumber: null });
   const [showDialog, setShowDialog] = useState(false);
   const [orderId, setOrderId] = useState();
+  const [customers, setCustomers] = useState([]);
+  const [searchCriteria, setSearchCriteria] = useState({
+    customerId: null,
+    orderDateFrom: "",
+    orderDateTo: "",
+  });
   const axiosPrivate = useAxiosPrivate();
   const [snackbar, setSnackbar] = useState({
     isOpen: false,
     status: "success",
     message: "Successfully!",
   });
+
+  useEffect(async () => {
+    try {
+      const customerResponse = await axiosPrivate.get(
+        "/api/Customer/getAll?pageSize=1000&pageNumber=1"
+      );
+      setCustomers(customerResponse.data.items || []);
+    } catch (error) {
+      setCustomers([]);
+    }
+  }, []);
 
   const getOrders = async (e) => {
     setLoading(true);
@@ -55,7 +85,9 @@ const OrderSearch = () => {
       .getAll(
         axiosPrivate,
         null,
-        null,
+        searchCriteria.customerId,
+        searchCriteria.orderDateFrom || null,
+        searchCriteria.orderDateTo || null,
         commonState.paginationState.pageSize,
         commonState.paginationState.currentPage
       )
@@ -151,6 +183,7 @@ const OrderSearch = () => {
                 <TableCell style={{ textAlign: "center" }}>受注日</TableCell>
                 <TableCell style={{ textAlign: "center" }}>合計金額</TableCell>
                 <TableCell style={{ textAlign: "center" }}>ステータス</TableCell>
+                <TableCell style={{ textAlign: "center" }}>AI照合</TableCell>
                 <TableCell style={{ textAlign: "center" }}>操作</TableCell>
               </TableRow>
             </TableHead>
@@ -168,6 +201,17 @@ const OrderSearch = () => {
                     </TableCell>
                     <TableCell style={{ textAlign: "center" }}>
                       <Chip label={item.status} color={statusColor[item.status] || "default"} size="small" />
+                    </TableCell>
+                    <TableCell style={{ textAlign: "center" }}>
+                      {item.riskLevel ? (
+                        <Chip
+                          label={riskLabel[item.riskLevel] || item.riskLevel}
+                          color={riskColor[item.riskLevel] || "default"}
+                          size="small"
+                        />
+                      ) : (
+                        "-"
+                      )}
                     </TableCell>
                     <TableCell style={{ textAlign: "center" }}>
                       <Button
@@ -196,7 +240,7 @@ const OrderSearch = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6}>
+                  <TableCell colSpan={7}>
                     <span style={{ color: "#000" }}>表示する項目がありません。</span>
                   </TableCell>
                 </TableRow>
@@ -211,6 +255,52 @@ const OrderSearch = () => {
   return (
     <section>
       <Grid container spacing={5}>
+        <Grid item xs={12}>
+          <Grid container columnSpacing={5} rowSpacing={3}>
+            <Grid item xs={12} sm={5} md={4}>
+              <div className="section-item">
+                <label className="section-label">取引先</label>
+                <FormSelection
+                  value={
+                    customers.find((c) => c.id === searchCriteria.customerId) || null
+                  }
+                  options={customers}
+                  optionSelected={(e, value) =>
+                    setSearchCriteria((v) => ({
+                      ...v,
+                      customerId: value ? value.id : null,
+                    }))
+                  }
+                />
+              </div>
+            </Grid>
+            <Grid item xs={12} sm={7} md={5}>
+              <div className="section-item">
+                <label className="section-label">受注日</label>
+                <div className="section-range">
+                  <input
+                    type="date"
+                    className="section-input"
+                    value={searchCriteria.orderDateFrom}
+                    onChange={(e) =>
+                      setSearchCriteria((v) => ({ ...v, orderDateFrom: e.target.value }))
+                    }
+                  />
+                  <span>〜</span>
+                  <input
+                    type="date"
+                    className="section-input"
+                    value={searchCriteria.orderDateTo}
+                    min={searchCriteria.orderDateFrom || undefined}
+                    onChange={(e) =>
+                      setSearchCriteria((v) => ({ ...v, orderDateTo: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+            </Grid>
+          </Grid>
+        </Grid>
         <Grid item xs={12}>
           <div className="handle-button">
             <FormButton itemName="検索" onClick={handleClickSearch} />
