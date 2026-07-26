@@ -18,6 +18,9 @@ import {
   Typography,
 } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { PieChart } from "@mui/x-charts/PieChart";
+import { LineChart } from "@mui/x-charts/LineChart";
+import { BarChart } from "@mui/x-charts/BarChart";
 import LoadingSpinner from "./until/LoadingSpinner";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import dashboardService from "../services/dashboardService";
@@ -31,6 +34,14 @@ const statusColor = {
   RiskFlagged: "warning",
   Invoiced: "info",
   Cancelled: "error",
+};
+
+const statusChartColor = {
+  Draft: "#9e9e9e",
+  Confirmed: "#2e7d32",
+  RiskFlagged: "#ed6c02",
+  Invoiced: "#0288d1",
+  Cancelled: "#c62828",
 };
 
 const StatTile = ({ label, value, color }) => (
@@ -221,14 +232,35 @@ const SalesDashboard = () => {
               <Typography variant="h6" gutterBottom>
                 受注ステータス内訳
               </Typography>
-              {summary.orderFunnel.map((s) => (
-                <Chip
-                  key={s.status}
-                  label={`${s.status}: ${s.count}件`}
-                  color={statusColor[s.status] || "default"}
-                  style={{ marginRight: 10, marginBottom: 5 }}
-                />
-              ))}
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} md={5}>
+                  {summary.orderFunnel.map((s) => (
+                    <Chip
+                      key={s.status}
+                      label={`${s.status}: ${s.count}件`}
+                      color={statusColor[s.status] || "default"}
+                      style={{ marginRight: 10, marginBottom: 5 }}
+                    />
+                  ))}
+                </Grid>
+                <Grid item xs={12} md={7}>
+                  <PieChart
+                    height={220}
+                    series={[
+                      {
+                        data: summary.orderFunnel.map((s) => ({
+                          id: s.status,
+                          value: s.count,
+                          label: s.status,
+                          color: statusChartColor[s.status] || "#9e9e9e",
+                        })),
+                        innerRadius: 40,
+                        paddingAngle: 2,
+                      },
+                    ]}
+                  />
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </Grid>
@@ -239,6 +271,18 @@ const SalesDashboard = () => {
               <Typography variant="h6" gutterBottom>
                 月別売上
               </Typography>
+              <LineChart
+                height={260}
+                xAxis={[{ scaleType: "point", data: summary.monthlySales.map((m) => m.month) }]}
+                series={[
+                  {
+                    data: summary.monthlySales.map((m) => m.totalAmount),
+                    label: "売上金額",
+                    color: "#0B78D1",
+                    valueFormatter: (v) => `¥${v.toLocaleString()}`,
+                  },
+                ]}
+              />
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -269,6 +313,20 @@ const SalesDashboard = () => {
               <Typography variant="h6" gutterBottom>
                 取引先別売上 TOP5
               </Typography>
+              <BarChart
+                height={260}
+                layout="horizontal"
+                yAxis={[{ scaleType: "band", data: summary.topCustomers.map((c) => c.customerName) }]}
+                series={[
+                  {
+                    data: summary.topCustomers.map((c) => c.totalAmount),
+                    label: "売上金額",
+                    color: "#11596F",
+                    valueFormatter: (v) => `¥${v.toLocaleString()}`,
+                  },
+                ]}
+                margin={{ left: 110 }}
+              />
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -299,6 +357,18 @@ const SalesDashboard = () => {
               <Typography variant="h6" gutterBottom>
                 商品別売上 TOP5
               </Typography>
+              <BarChart
+                height={280}
+                xAxis={[{ scaleType: "band", data: summary.topProducts.map((p) => p.productName) }]}
+                series={[
+                  {
+                    data: summary.topProducts.map((p) => p.totalAmount),
+                    label: "売上金額",
+                    color: "#0B78D1",
+                    valueFormatter: (v) => `¥${v.toLocaleString()}`,
+                  },
+                ]}
+              />
               <Table size="small">
                 <TableHead>
                   <TableRow>
