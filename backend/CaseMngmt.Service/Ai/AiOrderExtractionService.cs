@@ -1,5 +1,6 @@
 using CaseMngmt.Models.Ai;
 using CaseMngmt.Models.Orders;
+using CaseMngmt.Models.Products;
 using CaseMngmt.Repository.Customers;
 using CaseMngmt.Repository.Products;
 using Microsoft.Extensions.Logging;
@@ -164,15 +165,14 @@ namespace CaseMngmt.Service.Ai
                     var unitPrice = itemEl.TryGetProperty("unit_price", out var priceEl) ? priceEl.GetDecimal() : 0;
                     var confidence = itemEl.TryGetProperty("confidence", out var confEl) ? confEl.GetDouble() : 0.5;
 
-                    var matchedProduct = companyProducts.FirstOrDefault(p =>
-                        p.Name.Trim().Equals(productName.Trim(), StringComparison.OrdinalIgnoreCase));
+                    var matchedProduct = MatchProduct(companyProducts, productName);
 
                     result.Items.Add(new OrderExtractionItem
                     {
                         ProductNameRaw = productName,
                         ProductIdMatch = matchedProduct?.Id,
                         Quantity = quantity,
-                        UnitPrice = unitPrice,
+                        UnitPrice = matchedProduct?.UnitPrice ?? unitPrice,
                         Confidence = confidence
                     });
                 }
@@ -195,6 +195,36 @@ namespace CaseMngmt.Service.Ai
                 normalized = normalized.Replace(suffix, string.Empty);
             }
             return normalized.Trim();
+        }
+
+        private static string NormalizeProductName(string name)
+        {
+            return name.Trim().Replace(" ", string.Empty).Replace("　", string.Empty);
+        }
+
+        private static Product? MatchProduct(List<Product> companyProducts, string productName)
+        {
+            var normalizedGuess = NormalizeProductName(productName);
+            if (string.IsNullOrEmpty(normalizedGuess))
+            {
+                return null;
+            }
+
+            var exactMatch = companyProducts.FirstOrDefault(p =>
+                NormalizeProductName(p.Name).Equals(normalizedGuess, StringComparison.OrdinalIgnoreCase));
+            if (exactMatch != null)
+            {
+                return exactMatch;
+            }
+
+            var fuzzyCandidates = companyProducts.Where(p =>
+            {
+                var normalizedProduct = NormalizeProductName(p.Name);
+                return normalizedProduct.Contains(normalizedGuess, StringComparison.OrdinalIgnoreCase) ||
+                    normalizedGuess.Contains(normalizedProduct, StringComparison.OrdinalIgnoreCase);
+            }).ToList();
+
+            return fuzzyCandidates.Count == 1 ? fuzzyCandidates[0] : null;
         }
     }
 }
